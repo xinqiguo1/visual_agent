@@ -10,6 +10,7 @@ understanding and multi-agent orchestration.
 
 from .data_analyst import DataAnalyst
 from .visualizer import Visualizer
+from .web_visualizer import WebVisualizer
 from .code_generator import CodeGenerator
 from .insight_generator import InsightGenerator
 

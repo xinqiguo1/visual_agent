@@ -13,6 +13,11 @@ import plotly.express as px
 import plotly.graph_objects as go
 from io import BytesIO
 import base64
+import time
+from pathlib import Path
+
+# Import the new web visualizer
+from .web_visualizer import WebVisualizer
 
 
 class Visualizer:
@@ -20,14 +25,21 @@ class Visualizer:
     Agent responsible for generating visualizations from data.
     """
     
-    def __init__(self):
+    def __init__(self, output_dir: str = "outputs"):
         """Initialize the visualizer agent."""
         self.available_chart_types = [
             "bar", "line", "scatter", "histogram", "box", 
-            "heatmap", "pie", "area", "violin"
+            "heatmap", "pie", "area", "violin", "sunburst"
         ]
         self.default_style = "seaborn"
         self.color_palette = "viridis"
+        
+        # Initialize web visualizer for enhanced capabilities
+        self.web_visualizer = WebVisualizer(output_dir=output_dir)
+        
+        # Set up outputs directory
+        self.output_dir = Path(output_dir)
+        self.output_dir.mkdir(exist_ok=True)
         
     def create_chart(
         self, 
@@ -86,6 +98,114 @@ class Visualizer:
                 "chart_type": chart_type
             }
     
+    def create_web_chart(
+        self, 
+        data: pd.DataFrame, 
+        chart_type: str, 
+        x_column: str = None,
+        y_column: str = None,
+        color_column: str = None,
+        title: str = None,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """
+        Create a web-ready interactive chart using Plotly.
+        
+        Args:
+            data: DataFrame containing the data to plot
+            chart_type: Type of chart to create
+            x_column: Column for x-axis
+            y_column: Column for y-axis
+            color_column: Column to use for coloring
+            title: Custom title for the chart
+            **kwargs: Additional chart parameters
+            
+        Returns:
+            Dictionary with chart information, HTML file path, and web-ready formats
+        """
+        try:
+            # Use the web visualizer for interactive charts
+            result = self.web_visualizer.create_web_chart(
+                data=data,
+                chart_type=chart_type,
+                x_column=x_column,
+                y_column=y_column,
+                color_column=color_column,
+                title=title,
+                **kwargs
+            )
+            
+            # Add backward compatibility fields
+            if result.get("success"):
+                result["file_path"] = result["html_path"]
+                result["interactive"] = True
+                result["format"] = "html"
+            
+            return result
+            
+        except Exception as e:
+            return {
+                "error": f"Error creating web chart: {str(e)}",
+                "chart_type": chart_type,
+                "success": False
+            }
+    
+    def create_chart_with_options(
+        self, 
+        data: pd.DataFrame, 
+        chart_type: str,
+        x_column: str = None,
+        y_column: str = None,
+        color_column: str = None,
+        output_format: str = "web",  # "web", "static", "both"
+        **kwargs
+    ) -> Dict[str, Any]:
+        """
+        Create chart with multiple output format options.
+        
+        Args:
+            data: DataFrame containing the data to plot
+            chart_type: Type of chart to create
+            x_column: Column for x-axis
+            y_column: Column for y-axis
+            color_column: Column to use for coloring
+            output_format: Format to output ("web", "static", "both")
+            **kwargs: Additional chart parameters
+            
+        Returns:
+            Dictionary with chart information and outputs
+        """
+        results = {"chart_type": chart_type, "outputs": {}}
+        
+        try:
+            if output_format in ["web", "both"]:
+                # Create interactive web chart
+                web_result = self.create_web_chart(
+                    data, chart_type, x_column, y_column, color_column, **kwargs
+                )
+                results["outputs"]["web"] = web_result
+                
+            if output_format in ["static", "both"]:
+                # Create static matplotlib chart
+                static_result = self.create_chart(
+                    data, chart_type, x_column, y_column, **kwargs
+                )
+                results["outputs"]["static"] = static_result
+            
+            # Determine overall success
+            results["success"] = any(
+                output.get("success", False) for output in results["outputs"].values()
+            )
+            
+            return results
+            
+        except Exception as e:
+            return {
+                "error": f"Error creating chart with options: {str(e)}",
+                "chart_type": chart_type,
+                "success": False
+            }
+    
     def suggest_visualizations(self, data: pd.DataFrame) -> List[Dict[str, Any]]:
         """
         Suggest appropriate visualizations based on data characteristics.
@@ -138,6 +258,31 @@ class Visualizer:
             })
         
         return suggestions
+    
+    def suggest_web_visualizations(self, data: pd.DataFrame) -> List[Dict[str, Any]]:
+        """
+        Suggest web-optimized interactive visualizations.
+        
+        Args:
+            data: DataFrame to analyze
+            
+        Returns:
+            List of suggested web visualizations
+        """
+        return self.web_visualizer.suggest_web_visualizations(data)
+    
+    def create_dashboard(self, charts: List[Dict[str, Any]], title: str = "Data Analysis Dashboard") -> str:
+        """
+        Create a multi-chart dashboard.
+        
+        Args:
+            charts: List of chart result dictionaries
+            title: Dashboard title
+            
+        Returns:
+            HTML string for complete dashboard
+        """
+        return self.web_visualizer.create_dashboard(charts, title)
     
     def _create_bar_chart(self, data: pd.DataFrame, x_col: str, y_col: str = None, **kwargs) -> Dict[str, Any]:
         """Create a bar chart."""

@@ -13,10 +13,12 @@ An intelligent data analysis assistant powered by GPT-4o and LangChain, capable 
 ### 🔧 **Core Capabilities**
 - **Data Exploration**: Automatic profiling and structure analysis
 - **Statistical Analysis**: Correlations, distributions, summary statistics
-- **Visualization**: Smart chart recommendations and generation
+- **Interactive Visualizations**: Plotly-powered web-ready charts with zoom, hover, and filtering
+- **Multi-format Charts**: Scatter plots, bar charts, heatmaps, histograms, box plots, and more
 - **Code Generation**: Python code creation with safety validation
 - **Insight Discovery**: Automated pattern detection and recommendations
 - **Data Quality Assessment**: Missing values, outliers, data type analysis
+- **Dashboard Creation**: Multi-chart dashboards with professional layouts
 
 ### 🛡️ **Safety & Reliability**
 - **Graceful fallback** to rule-based processing without API key
@@ -123,10 +125,12 @@ print(result['explanation'])
 - "What's the average age of customers?"
 - "Show me summary statistics for all numeric columns"
 
-### **Visualization Requests**
-- "Create a scatter plot of age vs income"
-- "Show me the distribution of customer categories"
-- "Visualize the relationship between spending and satisfaction"
+### **Interactive Visualization Requests**
+- "Create an interactive scatter plot of age vs income colored by category"
+- "Make a beautiful bar chart showing product categories"
+- "Generate a correlation heatmap for all numeric variables"
+- "Create a box plot comparing spending by customer segment"
+- "Show me a histogram of spending scores with category breakdown"
 
 ### **Insight Discovery**
 - "What patterns do you see in my data?"
@@ -187,19 +191,30 @@ prompts = get_agent_prompts()
 prompts["custom_intent"] = "Your custom prompt template here"
 ```
 
-## 📊 **Demo Script**
+## 📊 **Demo Scripts**
 
-Run the included demo to see all capabilities:
-
+### **Main Demo** (with web visualizations)
 ```bash
 python demo_langchain_agent.py
 ```
 
-This will:
-1. Create sample data
-2. Test fallback mode (no API key)
-3. Show enhanced mode capabilities (with API key)
-4. Demonstrate all agent features
+### **Web Visualization Demo** (comprehensive testing)
+```bash
+python demo_web_visualizations.py
+```
+
+### **What the demos include:**
+1. **Sample Data Creation**: Realistic customer dataset with correlations
+2. **Fallback Mode Testing**: Works without API key
+3. **Enhanced Mode**: Full LangChain + GPT-4o capabilities
+4. **Interactive Charts**: Plotly-powered web visualizations
+5. **Dashboard Creation**: Multi-chart professional layouts
+6. **File Output**: HTML files ready for web deployment
+
+### **Output Files:**
+- Interactive HTML charts saved to `outputs/` folder
+- Dashboard files combining multiple visualizations
+- All charts are web-ready and mobile-responsive
 
 ## 🔍 **Features Comparison**
 

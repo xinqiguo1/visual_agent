@@ -11,6 +11,8 @@ import numpy as np
 from src.agents import DataAnalyst
 from src.config.settings import setup_environment
 
+os.environ['OPENAI_API_KEY'] = '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'
+
 def create_sample_data():
     """Create sample dataset for demonstration."""
     np.random.seed(42)
@@ -88,7 +90,9 @@ def demonstrate_capabilities():
     test_queries = [
         "What columns do I have?",
         "Show me summary statistics",
-        "Create a visualization",
+        "Create a scatter plot of age vs income",
+        "Make a histogram of spending scores",
+        "Generate a heatmap of correlations",
         "Find insights in my data",
         "What's the average income?"
     ]
@@ -99,6 +103,27 @@ def demonstrate_capabilities():
         print(f"📋 Result: {result.get('explanation', 'No explanation')}")
         if result.get('error'):
             print(f"⚠️  Error: {result['error']}")
+    
+    # Test web visualization capabilities
+    print("\n" + "=" * 50)
+    print("TESTING WEB VISUALIZATIONS")
+    print("=" * 50)
+    
+    print("\n🎨 Testing direct web visualization...")
+    web_result = analyst.visualizer.create_web_chart(
+        data=df,
+        chart_type="scatter",
+        x_column="age",
+        y_column="income",
+        color_column="category",
+        title="Age vs Income by Category"
+    )
+    
+    if web_result.get("success"):
+        print(f"✅ Web chart created: {web_result['html_path']}")
+        print("🌐 Open the HTML file in your browser to see the interactive chart!")
+    else:
+        print(f"❌ Error creating web chart: {web_result.get('error', 'Unknown error')}")
     
     # Instructions for API key setup
     print("\n" + "=" * 50)
@@ -123,7 +148,10 @@ def demonstrate_capabilities():
         enhanced_queries = [
             "Analyze the relationship between income and spending score",
             "What insights can you find about customer satisfaction?",
-            "Create a visualization showing purchase patterns by category",
+            "Create an interactive scatter plot showing age vs income colored by category",
+            "Make a beautiful bar chart of purchase amounts by category",
+            "Generate a correlation heatmap for all numeric variables",
+            "Create a box plot comparing spending scores across categories",
             "Generate Python code to identify premium customers"
         ]
         

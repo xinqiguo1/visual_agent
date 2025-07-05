@@ -156,9 +156,22 @@ class DataAnalyst:
             return None
         
         try:
-            # Create the agent prompt
-            prompt = ChatPromptTemplate.from_messages([
-                ("system", """You are an expert data analyst assistant. You help users analyze their datasets through natural language queries.
+            # Create the agent prompt with required ReAct template variables
+            prompt = PromptTemplate.from_template("""You are an expert data analyst assistant. You help users analyze their datasets through natural language queries.
+
+You have access to the following tools:
+{tools}
+
+Use the following format:
+
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
 
 Available tools:
 - data_exploration: Get dataset info, columns, shape, overview
@@ -168,18 +181,18 @@ Available tools:
 - insight_generation: Find patterns and insights automatically
 - data_filtering: Filter and subset data
 
-When a user asks a question:
-1. Understand what they want to know
+When analyzing data:
+1. Understand what the user wants to know
 2. Use the appropriate tools to gather information or perform analysis
 3. Provide clear, helpful responses
 4. If you need to use multiple tools, explain your reasoning
 
 Always be helpful and provide actionable insights. If something cannot be done, explain why and suggest alternatives.
 
-Current dataset info: {dataset_info}"""),
-                ("human", "{input}"),
-                ("assistant", "{agent_scratchpad}")
-            ])
+Begin!
+
+Question: {input}
+Thought: {agent_scratchpad}""")
             
             # Create the agent
             agent = create_react_agent(
@@ -476,31 +489,104 @@ Key Insights:
             return f"Error in statistical analysis: {str(e)}"
     
     def _visualization_tool(self, input_text: str) -> str:
-        """Tool for creating visualizations."""
+        """Enhanced tool for creating web-ready interactive visualizations."""
         if self.current_dataset is None:
             return "No dataset loaded."
         
         try:
-            # Get suggestions from visualizer
-            suggestions = self.visualizer.suggest_visualizations(self.current_dataset)
+            # Parse visualization request
+            request_lower = input_text.lower()
             
-            suggestion_text = "\n".join([
-                f"- {s['type']}: {s['description']}" 
-                for s in suggestions[:3]
-            ])
+            # Determine chart type
+            chart_type = "scatter"  # default
+            if "bar" in request_lower or "count" in request_lower:
+                chart_type = "bar"
+            elif "line" in request_lower or "trend" in request_lower:
+                chart_type = "line"
+            elif "histogram" in request_lower or "distribution" in request_lower:
+                chart_type = "histogram"
+            elif "box" in request_lower:
+                chart_type = "box"
+            elif "heatmap" in request_lower or "correlation" in request_lower:
+                chart_type = "heatmap"
+            elif "pie" in request_lower:
+                chart_type = "pie"
+            elif "violin" in request_lower:
+                chart_type = "violin"
+            elif "area" in request_lower:
+                chart_type = "area"
             
-            return f"""Visualization Suggestions:
-{suggestion_text}
-
-To create a specific chart, specify:
-- Chart type (bar, line, scatter, histogram, etc.)
-- X and Y columns
-- Any filtering criteria
-
-Example: "Create a scatter plot of column_x vs column_y"
-"""
+            # Get column suggestions
+            numeric_cols = list(self.current_dataset.select_dtypes(include=['number']).columns)
+            categorical_cols = list(self.current_dataset.select_dtypes(include=['object']).columns)
+            
+            # Smart column selection
+            x_col = None
+            y_col = None
+            color_col = None
+            
+            if chart_type == "heatmap":
+                # Heatmap doesn't need specific columns
+                pass
+            else:
+                # Determine columns based on chart type and available data
+                if chart_type in ["bar", "pie"]:
+                    if len(categorical_cols) >= 1:
+                        x_col = categorical_cols[0]
+                        if len(numeric_cols) >= 1 and chart_type == "bar":
+                            y_col = numeric_cols[0]
+                elif chart_type == "histogram":
+                    if len(numeric_cols) >= 1:
+                        x_col = numeric_cols[0]
+                else:
+                    # For scatter, line, box, etc.
+                    if len(numeric_cols) >= 2:
+                        x_col = numeric_cols[0]
+                        y_col = numeric_cols[1]
+                    elif len(numeric_cols) >= 1:
+                        x_col = numeric_cols[0]
+                        if len(categorical_cols) >= 1:
+                            y_col = x_col
+                            x_col = categorical_cols[0]
+                
+                # Add color column for enhanced interactivity
+                if len(categorical_cols) >= 1 and categorical_cols[0] not in [x_col, y_col]:
+                    color_col = categorical_cols[0]
+            
+            # Create web-ready interactive chart
+            result = self.visualizer.create_web_chart(
+                self.current_dataset, 
+                chart_type, 
+                x_col, 
+                y_col, 
+                color_col
+            )
+            
+            if result.get("success"):
+                response = f"✅ Created interactive {chart_type} visualization!\n\n"
+                response += f"📊 Chart details:\n"
+                response += f"   • Type: {chart_type}\n"
+                if x_col:
+                    response += f"   • X-axis: {x_col}\n"
+                if y_col:
+                    response += f"   • Y-axis: {y_col}\n"
+                if color_col:
+                    response += f"   • Color: {color_col}\n"
+                response += f"\n📁 Saved to: {result['html_path']}\n"
+                response += f"🌐 Open the HTML file in your browser to view the interactive chart!\n"
+                
+                # Add suggestions for other charts
+                suggestions = self.visualizer.suggest_web_visualizations(self.current_dataset)
+                if suggestions:
+                    suggestion_text = ", ".join([s["type"] for s in suggestions[:3]])
+                    response += f"\n💡 Other suggestions: {suggestion_text}"
+                
+                return response
+            else:
+                return f"❌ Error creating visualization: {result.get('error', 'Unknown error')}"
+                
         except Exception as e:
-            return f"Error generating visualization suggestions: {str(e)}"
+            return f"Error in visualization tool: {str(e)}"
     
     def _code_generation_tool(self, input_text: str) -> str:
         """Tool for generating Python code."""
