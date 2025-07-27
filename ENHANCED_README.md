@@ -15,7 +15,7 @@ An intelligent data analysis assistant powered by GPT-4o and LangChain, capable 
 - **Statistical Analysis**: Correlations, distributions, summary statistics
 - **Interactive Visualizations**: Plotly-powered web-ready charts with zoom, hover, and filtering
 - **Multi-format Charts**: Scatter plots, bar charts, heatmaps, histograms, box plots, and more
-- **Code Generation**: Python code creation with safety validation
+- **Code Generation & Execution**: Python code creation with safety validation and live execution with results
 - **Insight Discovery**: Automated pattern detection and recommendations
 - **Data Quality Assessment**: Missing values, outliers, data type analysis
 - **Dashboard Creation**: Multi-chart dashboards with professional layouts
@@ -112,6 +112,83 @@ print(result['explanation'])
 result = analyst.process_query("Generate Python code to identify high-value customers")
 print(result['explanation'])
 ```
+
+## 📊 **Interactive Dashboard**
+
+The Visual Analytics Agent now includes a beautiful, user-friendly Streamlit dashboard that combines progressive disclosure with conversational analytics.
+
+### **Dashboard Features**
+
+#### 🏗️ **Layout (Pattern 2 + Pattern 3 Combined)**
+- **Left Side**: Auto-generated dashboard with upload, key metrics, and instant insights
+- **Right Side**: Chat interface for natural language questions  
+- **Bottom**: Detailed custom analysis and advanced visualizations
+
+#### ✨ **Key Capabilities**
+- **📁 Upload & Go**: Drag-and-drop CSV, JSON, or Excel files
+- **🤖 Auto-Insights**: Instant pattern detection and key findings
+- **💬 Chat Interface**: Ask questions in natural language
+- **📊 Custom Analytics**: Advanced analysis types (correlation, outliers, clustering)
+- **🔧 Code Generation & Execution**: Generate custom Python code and see live results
+- **📈 Custom Charts**: Interactive Plotly visualizations
+- **📋 Result Export**: Download analysis results and charts
+
+### **🚀 Running the Dashboard**
+
+1. **Install Streamlit** (if not already installed):
+```bash
+pip install streamlit plotly
+```
+
+2. **Start the API server** (in one terminal):
+```bash
+python run_api.py
+```
+
+3. **Launch the dashboard** (in another terminal):
+```bash
+python run_dashboard.py
+# OR manually:
+streamlit run analytics_dashboard.py
+```
+
+4. **Open your browser** to `http://localhost:8501`
+
+### **💡 Dashboard Usage Flow**
+
+#### **Step 1: Upload Data**
+- Use the file uploader at the top
+- Supports CSV, JSON, Excel formats
+- Get instant dataset overview
+
+#### **Step 2: Auto-Dashboard (Left Side)**
+- **Key Metrics**: Rows, columns, size, upload date
+- **Auto-Insights**: AI-generated patterns and findings  
+- **Quick Stats**: Data quality, memory usage, duplicates
+
+#### **Step 3: Chat Interface (Right Side)**
+- **Example Questions**: Click pre-built queries like "Show me correlations"
+- **Custom Questions**: Ask anything about your data
+- **Code Generation**: Use phrases like "Generate code to...", "Create code for...", "Write code that..."
+- **Live Execution**: See both the generated Python code and its execution results
+- **Conversation History**: See your chat with confidence scores
+
+#### **Step 4: Custom Analytics (Bottom)**
+- **Analysis Types**: Statistical, correlation, outlier detection, clustering
+- **Custom Charts**: Scatter, line, bar, heatmap, pie, violin plots
+- **Advanced Options**: Set confidence thresholds, max insights
+- **Results Tabs**: View multiple analysis results side-by-side
+
+### **🎯 Dashboard vs Frontend.html**
+
+| Feature | Old (frontend.html) | New (Dashboard) |
+|---------|-------------------|-----------------|
+| **User Experience** | Technical API tester | Business-friendly interface |
+| **Layout** | Single page with all APIs | Progressive disclosure |
+| **Error Handling** | Raw API errors shown | Graceful user messages |
+| **Workflow** | Manual API calls | Guided data journey |
+| **Visualizations** | JSON responses | Interactive charts |
+| **Learning Curve** | High (developer tool) | Low (self-explanatory) |
 
 ## 🎯 **Example Queries**
 

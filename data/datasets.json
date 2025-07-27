@@ -1,0 +1,89 @@
+{
+  "742d85ee-9e1f-455a-adb1-79455a74ec2b": {
+    "dataset_id": "742d85ee-9e1f-455a-adb1-79455a74ec2b",
+    "name": "test",
+    "description": "Uploaded file: test.csv",
+    "file_info": {
+      "filename": "2ee9cf34-17d7-4428-8bdb-142ea35a1a5e_test.csv",
+      "size": 47,
+      "content_type": "application/vnd.ms-excel",
+      "upload_time": "2025-07-22T16:25:11.731499",
+      "file_id": "2ee9cf34-17d7-4428-8bdb-142ea35a1a5e"
+    },
+    "summary": {
+      "rows": 2,
+      "columns": 3,
+      "memory_usage_mb": 0.0002574920654296875,
+      "column_info": [
+        {
+          "name": "name",
+          "data_type": "string",
+          "non_null_count": 2,
+          "null_count": 0,
+          "unique_count": 2,
+          "memory_usage": null,
+          "min_value": null,
+          "max_value": null,
+          "mean_value": null,
+          "median_value": null,
+          "std_deviation": null,
+          "most_frequent_value": "Alice",
+          "frequency_count": 1,
+          "categories": [
+            "Alice",
+            "Bob"
+          ]
+        },
+        {
+          "name": "age",
+          "data_type": "integer",
+          "non_null_count": 2,
+          "null_count": 0,
+          "unique_count": 2,
+          "memory_usage": null,
+          "min_value": 25,
+          "max_value": 30,
+          "mean_value": 27.5,
+          "median_value": 27.5,
+          "std_deviation": 3.5355339059327378,
+          "most_frequent_value": null,
+          "frequency_count": null,
+          "categories": null
+        },
+        {
+          "name": "salary",
+          "data_type": "integer",
+          "non_null_count": 2,
+          "null_count": 0,
+          "unique_count": 2,
+          "memory_usage": null,
+          "min_value": 50000,
+          "max_value": 60000,
+          "mean_value": 55000.0,
+          "median_value": 55000.0,
+          "std_deviation": 7071.067811865475,
+          "most_frequent_value": null,
+          "frequency_count": null,
+          "categories": null
+        }
+      ],
+      "total_missing_values": 0,
+      "missing_percentage": 0.0,
+      "duplicate_rows": 0,
+      "numeric_columns": [
+        "age",
+        "salary"
+      ],
+      "categorical_columns": [
+        "name"
+      ],
+      "datetime_columns": [],
+      "data_quality_score": 100.0,
+      "recommendations": []
+    },
+    "created_at": "2025-07-22T16:25:11.739802",
+    "updated_at": "2025-07-22T16:25:11.739802",
+    "file_path": "uploads\\2ee9cf34-17d7-4428-8bdb-142ea35a1a5e_test.csv",
+    "cached_data_path": "cache\\742d85ee-9e1f-455a-adb1-79455a74ec2b.parquet"
+  }
+}

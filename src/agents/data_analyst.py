@@ -5,11 +5,43 @@ Main agent responsible for understanding user queries about data and
 coordinating analysis tasks with full LangChain integration.
 """
 
-from typing import Dict, Any, List, Optional
-import pandas as pd
+# Standard library imports
+from typing import Dict, Any, List, Optional, Union
 import json
 import traceback
+import sys
+import io
+import contextlib
+import warnings
 from datetime import datetime
+
+# Data analysis imports
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Numpy conversion utility
+def convert_numpy_types(obj):
+    """Convert numpy types to Python native types for JSON serialization."""
+    if isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif hasattr(obj, 'name') and hasattr(obj, 'type'):  # pandas dtype objects
+        return str(obj)
+    elif str(type(obj)).startswith("<class 'pandas"):  # any pandas objects
+        return str(obj)
+    elif isinstance(obj, dict):
+        return {key: convert_numpy_types(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_numpy_types(item) for item in obj]
+    elif pd.isna(obj):
+        return None
+    else:
+        return obj
 
 # LangChain imports
 from langchain.agents import create_react_agent, AgentExecutor
@@ -83,19 +115,28 @@ class DataAnalyst:
         self.current_dataset = data
         self.dataset_metadata = metadata or {}
         
+        # Clean the data to handle any remaining list objects
+        cleaned_data = data.copy()
+        for col in cleaned_data.columns:
+            # Convert any remaining list objects to strings
+            if cleaned_data[col].apply(lambda x: isinstance(x, (list, dict))).any():
+                cleaned_data[col] = cleaned_data[col].apply(lambda x: str(x) if isinstance(x, (list, dict)) else x)
+        
+        self.current_dataset = cleaned_data
+        
         # Generate comprehensive dataset summary
         summary = {
-            "shape": data.shape,
-            "columns": list(data.columns),
-            "dtypes": data.dtypes.to_dict(),
-            "missing_values": data.isnull().sum().to_dict(),
-            "memory_usage": data.memory_usage(deep=True).sum(),
-            "numeric_columns": list(data.select_dtypes(include=['number']).columns),
-            "categorical_columns": list(data.select_dtypes(include=['object']).columns),
-            "date_columns": list(data.select_dtypes(include=['datetime']).columns),
-            "memory_mb": round(data.memory_usage(deep=True).sum() / 1024**2, 2),
-            "duplicates": data.duplicated().sum(),
-            "total_missing": data.isnull().sum().sum()
+            "shape": cleaned_data.shape,
+            "columns": list(cleaned_data.columns),
+            "dtypes": {col: str(dtype) for col, dtype in cleaned_data.dtypes.items()},
+            "missing_values": convert_numpy_types(cleaned_data.isnull().sum().to_dict()),
+            "memory_usage": convert_numpy_types(cleaned_data.memory_usage(deep=True).sum()),
+            "numeric_columns": list(cleaned_data.select_dtypes(include=['number']).columns),
+            "categorical_columns": list(cleaned_data.select_dtypes(include=['object']).columns),
+            "date_columns": list(cleaned_data.select_dtypes(include=['datetime']).columns),
+            "memory_mb": convert_numpy_types(round(cleaned_data.memory_usage(deep=True).sum() / 1024**2, 2)),
+            "duplicates": convert_numpy_types(cleaned_data.duplicated().sum()),
+            "total_missing": convert_numpy_types(cleaned_data.isnull().sum().sum())
         }
         
         # Clear conversation memory when new dataset is loaded
@@ -177,7 +218,7 @@ Available tools:
 - data_exploration: Get dataset info, columns, shape, overview
 - statistical_analysis: Calculate statistics, correlations, summaries  
 - visualization: Create charts and plots
-- code_generation: Generate Python code for analysis
+- code_generation: Generate Python code for analysis - IMPORTANT: When using this tool, be very specific about what code you need. Ask for code that solves the exact problem, such as "Generate code to calculate total sales by region" or "Generate code to find which region has the highest sales". The tool will create custom code for your specific needs.
 - insight_generation: Find patterns and insights automatically
 - data_filtering: Filter and subset data
 
@@ -186,6 +227,12 @@ When analyzing data:
 2. Use the appropriate tools to gather information or perform analysis
 3. Provide clear, helpful responses
 4. If you need to use multiple tools, explain your reasoning
+
+When using the code_generation tool:
+1. Be extremely specific about what code you need
+2. Include all relevant details (columns, operations, etc.)
+3. Ask for code that directly answers the user's question
+4. Don't accept generic code - if the code doesn't solve the specific problem, ask again with more details
 
 Always be helpful and provide actionable insights. If something cannot be done, explain why and suggest alternatives.
 
@@ -240,7 +287,7 @@ Thought: {agent_scratchpad}""")
             intent_prompt = self.prompts["intent_classification"].format(
                 query=query,
                 columns=list(self.current_dataset.columns),
-                dtypes=self.current_dataset.dtypes.to_dict()
+                dtypes={col: str(dtype) for col, dtype in self.current_dataset.dtypes.items()}
             )
             
             intent = self.llm.predict(intent_prompt).strip().lower()
@@ -356,10 +403,15 @@ Thought: {agent_scratchpad}""")
             # Get dataset context for the agent
             dataset_info = self._get_dataset_context()
             
-            # Run the agent
+            # Combine query with dataset info to provide context
+            enhanced_query = f"""Dataset Context:
+{dataset_info}
+
+User Query: {query}"""
+            
+            # Run the agent with only the input parameter
             response = self.agent_executor.invoke({
-                "input": query,
-                "dataset_info": dataset_info
+                "input": enhanced_query
             })
             
             return {
@@ -443,8 +495,8 @@ Dataset Summary:
                 "shape": self.current_dataset.shape,
                 "columns": list(self.current_dataset.columns),
                 "dtypes": dict(self.current_dataset.dtypes.astype(str)),
-                "missing_values": dict(self.current_dataset.isnull().sum()),
-                "memory_usage_mb": round(self.current_dataset.memory_usage(deep=True).sum() / 1024**2, 2)
+                "missing_values": convert_numpy_types(dict(self.current_dataset.isnull().sum())),
+                "memory_usage_mb": convert_numpy_types(round(self.current_dataset.memory_usage(deep=True).sum() / 1024**2, 2))
             }
             
             return f"""Dataset Information:
@@ -589,19 +641,104 @@ Key Insights:
             return f"Error in visualization tool: {str(e)}"
     
     def _code_generation_tool(self, input_text: str) -> str:
-        """Tool for generating Python code."""
+        """Tool for generating and executing Python code."""
         if self.current_dataset is None:
             return "No dataset loaded."
         
         try:
-            # Parse the input to determine what kind of code to generate
-            if "correlation" in input_text.lower():
+            # If LLM is available, use it to generate custom code
+            if self.llm:
+                # Create a prompt for the LLM to generate custom code
+                columns_str = ", ".join(list(self.current_dataset.columns))
+                numeric_cols = ", ".join(list(self.current_dataset.select_dtypes(include=['number']).columns))
+                categorical_cols = ", ".join(list(self.current_dataset.select_dtypes(include=['object']).columns))
+                
+                # Sample data description
+                sample_data = self.current_dataset.head(3).to_string()
+                
+                # Create a prompt for code generation
+                code_prompt = f"""Generate Python code to solve this specific data analysis task:
+
+Task: {input_text}
+
+Dataset information:
+- Shape: {self.current_dataset.shape}
+- All columns: {columns_str}
+- Numeric columns: {numeric_cols}
+- Categorical columns: {categorical_cols}
+
+Sample data:
+{sample_data}
+
+Generate complete, executable Python code that:
+1. Directly addresses the specific task requested
+2. Uses pandas operations on the variable 'df' (the dataset is already loaded as 'df')
+3. Includes helpful comments
+4. Stores the final result in a variable called 'result'
+5. Prints the result clearly
+
+Important:
+- The dataset is already available as 'df'
+- Do not include data loading code
+- Store your final answer in a variable called 'result'
+- Use print() to display the result
+
+Example format:
+# Calculate total sales by region
+result = df.groupby('region')['sales'].sum()
+print("Total sales by region:")
+print(result)
+
+The code should be specific to this exact task, not a generic template.
+"""
+                
+                # Get code from LLM
+                try:
+                    generated_code = self.llm.predict(code_prompt)
+                    
+                    # Clean up the code (remove markdown code blocks if present)
+                    if "```python" in generated_code:
+                        generated_code = generated_code.split("```python")[1]
+                        if "```" in generated_code:
+                            generated_code = generated_code.split("```")[0]
+                    elif "```" in generated_code:
+                        # Handle plain ``` blocks
+                        code_parts = generated_code.split("```")
+                        if len(code_parts) >= 3:
+                            generated_code = code_parts[1]
+                    
+                    generated_code = generated_code.strip()
+                    
+                    # Execute the generated code safely
+                    execution_result = self._execute_code_safely(generated_code)
+                    
+                    return f"""Generated and Executed Python Code for: {input_text}
+
+**Generated Code:**
+```python
+{generated_code}
+```
+
+**Execution Result:**
+{execution_result['output']}
+
+**Status:** {'✅ Success' if execution_result['success'] else '❌ Error'}
+{f"**Error Details:** {execution_result['error']}" if execution_result.get('error') else ""}
+"""
+                except Exception as e:
+                    print(f"LLM code generation failed: {e}, falling back to template-based code")
+                    # Fall through to template-based code generation
+            
+            # Fall back to template-based code generation with execution
+            input_lower = input_text.lower()
+            
+            if "correlation" in input_lower:
                 task_type = "statistics"
                 params = {"operation": "correlation"}
-            elif "mean" in input_text.lower() or "average" in input_text.lower():
+            elif "mean" in input_lower or "average" in input_lower:
                 task_type = "statistics"
                 params = {"operation": "mean"}
-            elif "plot" in input_text.lower() or "chart" in input_text.lower():
+            elif "plot" in input_lower or "chart" in input_lower:
                 task_type = "visualization"
                 params = {"chart_type": "scatter"}
             else:
@@ -618,16 +755,124 @@ Key Insights:
             if "error" in code_result:
                 return f"Error generating code: {code_result['error']}"
             
-            return f"""Generated Python Code:
+            # Execute the template-generated code
+            execution_result = self._execute_code_safely(code_result['code'])
+            
+            return f"""Generated and Executed Python Code:
 
+**Generated Code:**
 ```python
 {code_result['code']}
 ```
 
-This code will: {code_result.get('explanation', 'Perform the requested analysis')}
+**Execution Result:**
+{execution_result['output']}
+
+**Status:** {'✅ Success' if execution_result['success'] else '❌ Error'}
+{f"**Error Details:** {execution_result['error']}" if execution_result.get('error') else ""}
+
+**Explanation:** {code_result.get('explanation', 'Performed the requested analysis')}
 """
         except Exception as e:
-            return f"Error generating code: {str(e)}"
+            return f"Error generating and executing code: {str(e)}"
+
+    def _execute_code_safely(self, code: str) -> Dict[str, Any]:
+        """
+        Safely execute Python code and capture output.
+        
+        Args:
+            code: Python code to execute
+            
+        Returns:
+            Dict containing execution results, output, and any errors
+        """
+        # Create a safe execution environment
+        safe_globals = {
+            'df': self.current_dataset.copy(),  # Provide the dataset
+            'pd': pd,
+            'np': np,
+            'plt': plt,
+            'sns': sns,
+            'datetime': datetime,
+            'print': print,
+            'len': len,
+            'sum': sum,
+            'max': max,
+            'min': min,
+            'round': round,
+            'abs': abs,
+            'sorted': sorted,
+            'list': list,
+            'dict': dict,
+            'str': str,
+            'int': int,
+            'float': float,
+            'result': None  # Initialize result variable
+        }
+        
+        # Capture stdout to get print outputs
+        captured_output = io.StringIO()
+        
+        try:
+            # Suppress warnings during execution
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                
+                # Redirect stdout to capture print statements
+                with contextlib.redirect_stdout(captured_output):
+                    # Execute the code
+                    exec(code, safe_globals)
+            
+            # Get the captured output
+            output = captured_output.getvalue()
+            
+            # If there's a result variable, include it in the output
+            if safe_globals.get('result') is not None:
+                result_value = safe_globals['result']
+                
+                # Format the result nicely
+                if hasattr(result_value, 'to_string'):  # Pandas DataFrame/Series
+                    if not output or output.strip() == '':
+                        output = str(result_value)
+                elif isinstance(result_value, (dict, list)):
+                    if not output or output.strip() == '':
+                        output = str(result_value)
+                elif isinstance(result_value, (int, float, str)):
+                    if not output or output.strip() == '':
+                        output = str(result_value)
+            
+            # If no output was captured, provide a default message
+            if not output or output.strip() == '':
+                output = "Code executed successfully. Result stored in 'result' variable."
+                if safe_globals.get('result') is not None:
+                    output += f"\nResult: {safe_globals['result']}"
+            
+            return {
+                'success': True,
+                'output': output.strip(),
+                'result': safe_globals.get('result'),
+                'error': None
+            }
+            
+        except Exception as e:
+            # Handle execution errors
+            error_msg = str(e)
+            
+            # Provide more helpful error messages for common issues
+            if "name" in error_msg and "is not defined" in error_msg:
+                error_msg += "\nTip: Make sure you're using available variables (df, pd, np) and functions."
+            elif "KeyError" in error_msg:
+                error_msg += f"\nTip: Check column names. Available columns: {list(self.current_dataset.columns)}"
+            
+            return {
+                'success': False,
+                'output': captured_output.getvalue() or "No output generated before error.",
+                'result': None,
+                'error': error_msg
+            }
+            
+        finally:
+            captured_output.close()
     
     def _insight_generation_tool(self, input_text: str) -> str:
         """Tool for generating automatic insights."""
@@ -701,7 +946,7 @@ Current dataset size: {len(self.current_dataset)} rows
                 "result": {
                     "columns": list(self.current_dataset.columns),
                     "count": len(self.current_dataset.columns),
-                    "dtypes": self.current_dataset.dtypes.to_dict()
+                    "dtypes": {col: str(dtype) for col, dtype in self.current_dataset.dtypes.items()}
                 },
                 "explanation": f"The dataset has {len(self.current_dataset.columns)} columns: {', '.join(list(self.current_dataset.columns))}"
             }
@@ -711,18 +956,18 @@ Current dataset size: {len(self.current_dataset)} rows
                 "result": {
                     "rows": self.current_dataset.shape[0],
                     "columns": self.current_dataset.shape[1],
-                    "memory_mb": round(self.current_dataset.memory_usage(deep=True).sum() / 1024**2, 2)
+                    "memory_mb": convert_numpy_types(round(self.current_dataset.memory_usage(deep=True).sum() / 1024**2, 2))
                 },
                 "explanation": f"The dataset has {self.current_dataset.shape[0]} rows and {self.current_dataset.shape[1]} columns, using {round(self.current_dataset.memory_usage(deep=True).sum() / 1024**2, 2)} MB of memory."
             }
         else:
-            sample_data = self.current_dataset.head().to_dict()
+            sample_data = convert_numpy_types(self.current_dataset.head().to_dict())
             return {
                 "type": "exploration",
                 "result": {
                     "sample_data": sample_data,
                     "shape": self.current_dataset.shape,
-                    "dtypes": self.current_dataset.dtypes.to_dict()
+                    "dtypes": {col: str(dtype) for col, dtype in self.current_dataset.dtypes.items()}
                 },
                 "explanation": "Here are the first 5 rows of your dataset with data type information."
             }
@@ -741,7 +986,7 @@ Current dataset size: {len(self.current_dataset)} rows
         
         operation = parameters.get("operation", "")
         if "average" in query.lower() or "mean" in query.lower() or operation == "mean":
-            result = numeric_data.mean().to_dict()
+            result = convert_numpy_types(numeric_data.mean().to_dict())
             return {
                 "type": "statistics",
                 "result": result,
@@ -757,11 +1002,11 @@ Current dataset size: {len(self.current_dataset)} rows
             corr_matrix = numeric_data.corr()
             return {
                 "type": "statistics",
-                "result": corr_matrix.to_dict(),
+                "result": convert_numpy_types(corr_matrix.to_dict()),
                 "explanation": "Correlation matrix showing relationships between numeric variables."
             }
         else:
-            result = numeric_data.describe().to_dict()
+            result = convert_numpy_types(numeric_data.describe().to_dict())
             return {
                 "type": "statistics", 
                 "result": result,

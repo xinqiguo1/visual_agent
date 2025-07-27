@@ -1,0 +1,51 @@
+ID,Age,Gender,Education,Income,Employment_Status,Marital_Status,Children,City,State,Country,Satisfaction_Score,Product_Usage
+1,28,Female,Bachelor,65000,Employed,Single,0,New York,NY,USA,8.5,High
+2,35,Male,Master,85000,Employed,Married,2,Los Angeles,CA,USA,7.2,Medium
+3,42,Female,PhD,95000,Employed,Married,1,Chicago,IL,USA,9.1,High
+4,31,Male,Bachelor,55000,Employed,Single,0,Houston,TX,USA,6.8,Low
+5,26,Female,High School,35000,Employed,Single,0,Phoenix,AZ,USA,7.5,Medium
+6,48,Male,Master,120000,Employed,Married,3,Philadelphia,PA,USA,8.8,High
+7,33,Female,Bachelor,72000,Employed,Divorced,1,San Antonio,TX,USA,7.9,Medium
+8,39,Male,Bachelor,68000,Employed,Married,2,San Diego,CA,USA,8.2,High
+9,27,Female,Master,78000,Employed,Single,0,Dallas,TX,USA,8.6,High
+10,44,Male,PhD,110000,Employed,Married,2,San Jose,CA,USA,9.3,High
+11,29,Female,Bachelor,62000,Employed,Single,0,Austin,TX,USA,7.4,Medium
+12,36,Male,High School,45000,Employed,Married,1,Jacksonville,FL,USA,6.9,Low
+13,41,Female,Master,88000,Employed,Divorced,2,Fort Worth,TX,USA,8.1,High
+14,32,Male,Bachelor,59000,Employed,Single,0,Columbus,OH,USA,7.7,Medium
+15,25,Female,Bachelor,52000,Employed,Single,0,Charlotte,NC,USA,7.8,Medium
+16,50,Male,Master,105000,Employed,Married,3,San Francisco,CA,USA,8.9,High
+17,38,Female,Bachelor,71000,Employed,Married,1,Indianapolis,IN,USA,8.3,High
+18,30,Male,Master,76000,Employed,Single,0,Seattle,WA,USA,8.7,High
+19,43,Female,PhD,98000,Employed,Married,2,Denver,CO,USA,9.2,High
+20,34,Male,Bachelor,64000,Employed,Married,1,Washington,DC,USA,8.0,Medium
+21,28,Female,Master,73000,Employed,Single,0,Boston,MA,USA,8.4,High
+22,37,Male,Bachelor,67000,Employed,Married,2,El Paso,TX,USA,7.6,Medium
+23,45,Female,High School,38000,Employed,Divorced,1,Detroit,MI,USA,6.5,Low
+24,31,Male,Master,81000,Employed,Single,0,Nashville,TN,USA,8.5,High
+25,29,Female,Bachelor,58000,Employed,Single,0,Portland,OR,USA,7.9,Medium
+26,46,Male,PhD,115000,Employed,Married,2,Oklahoma City,OK,USA,9.0,High
+27,33,Female,Bachelor,69000,Employed,Married,1,Las Vegas,NV,USA,8.1,High
+28,40,Male,Master,92000,Employed,Married,3,Louisville,KY,USA,8.6,High
+29,27,Female,Bachelor,56000,Employed,Single,0,Baltimore,MD,USA,7.7,Medium
+30,35,Male,Bachelor,63000,Employed,Divorced,1,Milwaukee,WI,USA,7.3,Medium
+31,24,Female,High School,32000,Student,Single,0,Albuquerque,NM,USA,7.1,Low
+32,47,Male,Master,108000,Employed,Married,2,Tucson,AZ,USA,8.8,High
+33,38,Female,Bachelor,74000,Employed,Married,1,Fresno,CA,USA,8.2,High
+34,32,Male,Bachelor,61000,Employed,Single,0,Sacramento,CA,USA,7.8,Medium
+35,26,Female,Master,70000,Employed,Single,0,Kansas City,MO,USA,8.3,High
+36,49,Male,PhD,125000,Employed,Married,3,Mesa,AZ,USA,9.4,High
+37,41,Female,Bachelor,77000,Employed,Divorced,2,Virginia Beach,VA,USA,8.0,High
+38,30,Male,Master,79000,Employed,Single,0,Atlanta,GA,USA,8.5,High
+39,28,Female,Bachelor,54000,Employed,Single,0,Colorado Springs,CO,USA,7.6,Medium
+40,44,Male,Master,96000,Employed,Married,2,Omaha,NE,USA,8.7,High
+41,33,Female,Bachelor,66000,Employed,Married,1,Raleigh,NC,USA,8.1,High
+42,39,Male,Bachelor,68000,Employed,Married,2,Miami,FL,USA,7.9,Medium
+43,27,Female,Master,75000,Employed,Single,0,Oakland,CA,USA,8.6,High
+44,45,Male,High School,41000,Employed,Divorced,1,Minneapolis,MN,USA,6.7,Low
+45,31,Female,Bachelor,60000,Employed,Single,0,Tulsa,OK,USA,7.5,Medium
+46,36,Male,Master,84000,Employed,Married,2,Cleveland,OH,USA,8.4,High
+47,29,Female,Bachelor,57000,Employed,Single,0,Wichita,KS,USA,7.8,Medium
+48,42,Male,PhD,102000,Employed,Married,2,Arlington,TX,USA,9.1,High
+49,34,Female,Bachelor,65000,Employed,Married,1,New Orleans,LA,USA,8.0,High
+50,28,Male,Master,72000,Employed,Single,0,Bakersfield,CA,USA,8.2,High 

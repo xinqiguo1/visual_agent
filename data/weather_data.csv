@@ -1,0 +1,51 @@
+Date,City,Temperature_C,Humidity_%,Pressure_hPa,Wind_Speed_kmh,Precipitation_mm,Weather_Condition
+2024-01-01,New York,2.5,68,1013.2,15.3,0.0,Clear
+2024-01-02,New York,4.1,72,1010.8,12.7,2.1,Light Rain
+2024-01-03,New York,1.8,75,1008.5,18.9,0.0,Cloudy
+2024-01-04,New York,3.2,70,1011.3,14.2,0.0,Partly Cloudy
+2024-01-05,New York,5.7,65,1014.7,9.8,0.0,Sunny
+2024-01-01,Los Angeles,18.3,55,1016.5,8.2,0.0,Sunny
+2024-01-02,Los Angeles,20.1,52,1015.9,10.4,0.0,Sunny
+2024-01-03,Los Angeles,17.8,58,1013.2,12.6,0.0,Partly Cloudy
+2024-01-04,Los Angeles,19.5,54,1014.8,9.1,0.0,Clear
+2024-01-05,Los Angeles,21.2,50,1017.3,7.8,0.0,Sunny
+2024-01-01,Chicago,-3.2,78,1009.1,22.4,0.0,Snow
+2024-01-02,Chicago,-1.8,82,1007.6,25.1,5.3,Heavy Snow
+2024-01-03,Chicago,-4.5,76,1011.2,19.8,0.0,Cloudy
+2024-01-04,Chicago,-2.1,80,1008.9,21.3,1.2,Light Snow
+2024-01-05,Chicago,0.3,74,1012.5,16.7,0.0,Partly Cloudy
+2024-01-01,Miami,24.8,79,1018.3,14.5,0.0,Partly Cloudy
+2024-01-02,Miami,26.2,82,1016.7,16.8,3.7,Thunderstorm
+2024-01-03,Miami,25.5,85,1015.2,13.2,8.4,Heavy Rain
+2024-01-04,Miami,23.9,88,1017.9,11.6,0.0,Cloudy
+2024-01-05,Miami,25.7,76,1019.4,12.9,0.0,Sunny
+2024-01-01,Seattle,6.8,87,1005.3,18.7,4.2,Rain
+2024-01-02,Seattle,5.2,89,1003.8,21.4,6.8,Heavy Rain
+2024-01-03,Seattle,7.1,84,1007.2,15.9,1.3,Light Rain
+2024-01-04,Seattle,8.5,81,1009.6,13.5,0.0,Cloudy
+2024-01-05,Seattle,9.3,78,1011.8,11.2,0.0,Partly Cloudy
+2024-01-06,New York,6.2,63,1016.1,8.4,0.0,Sunny
+2024-01-07,New York,3.8,69,1012.7,16.2,0.0,Partly Cloudy
+2024-01-08,New York,0.9,74,1009.3,20.1,3.5,Snow
+2024-01-09,New York,2.3,71,1013.8,12.8,0.0,Clear
+2024-01-10,New York,7.1,67,1015.4,10.6,0.0,Sunny
+2024-01-06,Los Angeles,22.4,48,1018.2,6.3,0.0,Sunny
+2024-01-07,Los Angeles,19.7,56,1015.8,11.7,0.0,Partly Cloudy
+2024-01-08,Los Angeles,16.2,61,1012.4,14.8,0.0,Cloudy
+2024-01-09,Los Angeles,18.9,53,1016.7,9.2,0.0,Clear
+2024-01-10,Los Angeles,23.1,47,1019.5,5.9,0.0,Sunny
+2024-01-06,Chicago,1.7,72,1014.6,14.3,0.0,Partly Cloudy
+2024-01-07,Chicago,-0.5,79,1010.2,18.6,0.0,Cloudy
+2024-01-08,Chicago,-2.8,83,1006.8,24.2,2.8,Light Snow
+2024-01-09,Chicago,3.4,68,1015.3,11.9,0.0,Sunny
+2024-01-10,Chicago,5.1,65,1017.7,9.4,0.0,Clear
+2024-01-06,Miami,27.3,73,1020.1,15.2,0.0,Sunny
+2024-01-07,Miami,24.6,86,1017.5,17.8,2.1,Light Rain
+2024-01-08,Miami,22.8,91,1014.2,19.3,9.6,Thunderstorm
+2024-01-09,Miami,26.1,78,1018.8,13.7,0.0,Partly Cloudy
+2024-01-10,Miami,28.5,71,1021.3,11.4,0.0,Sunny
+2024-01-06,Seattle,10.2,75,1013.5,12.8,0.0,Partly Cloudy
+2024-01-07,Seattle,8.7,82,1008.1,17.2,2.9,Rain
+2024-01-08,Seattle,6.3,88,1004.7,22.6,7.3,Heavy Rain
+2024-01-09,Seattle,9.8,79,1010.4,14.5,0.0,Cloudy
+2024-01-10,Seattle,11.6,73,1014.9,10.3,0.0,Sunny 

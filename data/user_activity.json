@@ -1,0 +1,139 @@
+{
+  "users": [
+    {
+      "user_id": "user_001",
+      "username": "alice_smith",
+      "email": "alice.smith@example.com",
+      "registration_date": "2024-01-15",
+      "last_login": "2024-02-05",
+      "country": "USA",
+      "age": 28,
+      "subscription_tier": "Premium",
+      "sessions": [
+        {
+          "session_id": "sess_001",
+          "start_time": "2024-02-05T09:15:00Z",
+          "end_time": "2024-02-05T10:30:00Z",
+          "pages_viewed": 15,
+          "actions": [
+            {"action": "login", "timestamp": "2024-02-05T09:15:00Z"},
+            {"action": "view_dashboard", "timestamp": "2024-02-05T09:16:30Z"},
+            {"action": "create_report", "timestamp": "2024-02-05T09:25:00Z"},
+            {"action": "share_report", "timestamp": "2024-02-05T10:10:00Z"},
+            {"action": "logout", "timestamp": "2024-02-05T10:30:00Z"}
+          ]
+        }
+      ]
+    },
+    {
+      "user_id": "user_002",
+      "username": "bob_johnson",
+      "email": "bob.johnson@example.com",
+      "registration_date": "2024-01-20",
+      "last_login": "2024-02-04",
+      "country": "Canada",
+      "age": 35,
+      "subscription_tier": "Basic",
+      "sessions": [
+        {
+          "session_id": "sess_002",
+          "start_time": "2024-02-04T14:20:00Z",
+          "end_time": "2024-02-04T15:45:00Z",
+          "pages_viewed": 8,
+          "actions": [
+            {"action": "login", "timestamp": "2024-02-04T14:20:00Z"},
+            {"action": "view_profile", "timestamp": "2024-02-04T14:22:00Z"},
+            {"action": "browse_templates", "timestamp": "2024-02-04T14:35:00Z"},
+            {"action": "logout", "timestamp": "2024-02-04T15:45:00Z"}
+          ]
+        }
+      ]
+    },
+    {
+      "user_id": "user_003",
+      "username": "carol_lee",
+      "email": "carol.lee@example.com",
+      "registration_date": "2024-01-08",
+      "last_login": "2024-02-05",
+      "country": "UK",
+      "age": 42,
+      "subscription_tier": "Enterprise",
+      "sessions": [
+        {
+          "session_id": "sess_003",
+          "start_time": "2024-02-05T08:00:00Z",
+          "end_time": "2024-02-05T12:30:00Z",
+          "pages_viewed": 32,
+          "actions": [
+            {"action": "login", "timestamp": "2024-02-05T08:00:00Z"},
+            {"action": "view_analytics", "timestamp": "2024-02-05T08:05:00Z"},
+            {"action": "export_data", "timestamp": "2024-02-05T08:45:00Z"},
+            {"action": "create_visualization", "timestamp": "2024-02-05T09:30:00Z"},
+            {"action": "schedule_report", "timestamp": "2024-02-05T11:15:00Z"},
+            {"action": "logout", "timestamp": "2024-02-05T12:30:00Z"}
+          ]
+        }
+      ]
+    },
+    {
+      "user_id": "user_004",
+      "username": "david_wilson",
+      "email": "david.wilson@example.com",
+      "registration_date": "2024-01-25",
+      "last_login": "2024-02-03",
+      "country": "Australia",
+      "age": 31,
+      "subscription_tier": "Premium",
+      "sessions": [
+        {
+          "session_id": "sess_004",
+          "start_time": "2024-02-03T16:45:00Z",
+          "end_time": "2024-02-03T18:20:00Z",
+          "pages_viewed": 12,
+          "actions": [
+            {"action": "login", "timestamp": "2024-02-03T16:45:00Z"},
+            {"action": "view_reports", "timestamp": "2024-02-03T16:50:00Z"},
+            {"action": "edit_report", "timestamp": "2024-02-03T17:15:00Z"},
+            {"action": "download_pdf", "timestamp": "2024-02-03T18:00:00Z"},
+            {"action": "logout", "timestamp": "2024-02-03T18:20:00Z"}
+          ]
+        }
+      ]
+    },
+    {
+      "user_id": "user_005",
+      "username": "eva_brown",
+      "email": "eva.brown@example.com",
+      "registration_date": "2024-02-01",
+      "last_login": "2024-02-05",
+      "country": "Germany",
+      "age": 26,
+      "subscription_tier": "Basic",
+      "sessions": [
+        {
+          "session_id": "sess_005",
+          "start_time": "2024-02-05T13:30:00Z",
+          "end_time": "2024-02-05T14:15:00Z",
+          "pages_viewed": 6,
+          "actions": [
+            {"action": "login", "timestamp": "2024-02-05T13:30:00Z"},
+            {"action": "view_tutorial", "timestamp": "2024-02-05T13:35:00Z"},
+            {"action": "complete_onboarding", "timestamp": "2024-02-05T14:00:00Z"},
+            {"action": "logout", "timestamp": "2024-02-05T14:15:00Z"}
+          ]
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_users": 5,
+    "active_users_today": 4,
+    "average_session_duration": 95.2,
+    "top_countries": ["USA", "Canada", "UK", "Australia", "Germany"],
+    "subscription_distribution": {
+      "Basic": 2,
+      "Premium": 2,
+      "Enterprise": 1
+    }
+  }
+} 

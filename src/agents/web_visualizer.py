@@ -83,6 +83,10 @@ class WebVisualizer:
             Dictionary with chart data and web-ready formats
         """
         try:
+            # Auto-select columns if not specified
+            if x_column is None or y_column is None:
+                x_column, y_column, color_column = self._auto_select_columns(data, chart_type, x_column, y_column, color_column)
+            
             # Get chart creator function
             chart_creator = self.chart_creators.get(chart_type, self._create_scatter)
             
@@ -453,6 +457,70 @@ class WebVisualizer:
             f.write(dashboard_html)
         
         return dashboard_html
+    
+    def _auto_select_columns(self, data: pd.DataFrame, chart_type: str, 
+                           x_column: str = None, y_column: str = None, 
+                           color_column: str = None) -> tuple:
+        """
+        Auto-select appropriate columns for chart creation.
+        
+        Args:
+            data: DataFrame containing the data
+            chart_type: Type of chart to create
+            x_column: Existing x_column (if any)
+            y_column: Existing y_column (if any)
+            color_column: Existing color_column (if any)
+            
+        Returns:
+            Tuple of (x_column, y_column, color_column)
+        """
+        numeric_columns = list(data.select_dtypes(include=['number']).columns)
+        categorical_columns = list(data.select_dtypes(include=['object', 'category']).columns)
+        all_columns = list(data.columns)
+        
+        # Auto-select based on chart type
+        if chart_type == "histogram":
+            # For histogram, we only need x_column (numeric preferred)
+            if x_column is None:
+                x_column = numeric_columns[0] if numeric_columns else all_columns[0]
+            return x_column, None, color_column
+        
+        elif chart_type == "pie":
+            # For pie chart, we need a categorical column
+            if x_column is None:
+                x_column = categorical_columns[0] if categorical_columns else all_columns[0]
+            return x_column, None, color_column
+        
+        elif chart_type == "heatmap":
+            # For heatmap, use all numeric columns
+            return None, None, None
+        
+        else:
+            # For most charts (scatter, line, bar, etc.), we need x and y
+            if x_column is None:
+                # Prefer categorical for x-axis in bar charts, numeric for others
+                if chart_type == "bar" and categorical_columns:
+                    x_column = categorical_columns[0]
+                else:
+                    x_column = numeric_columns[0] if numeric_columns else all_columns[0]
+            
+            if y_column is None:
+                # Prefer numeric for y-axis
+                available_numeric = [col for col in numeric_columns if col != x_column]
+                if available_numeric:
+                    y_column = available_numeric[0]
+                else:
+                    # Fallback to any column that's not x_column
+                    available_cols = [col for col in all_columns if col != x_column]
+                    y_column = available_cols[0] if available_cols else None
+            
+            # Auto-select color column if not specified
+            if color_column is None and categorical_columns:
+                available_categorical = [col for col in categorical_columns if col not in [x_column, y_column]]
+                if available_categorical:
+                    color_column = available_categorical[0]
+        
+        return x_column, y_column, color_column
     
     def suggest_web_visualizations(self, data: pd.DataFrame) -> List[Dict[str, Any]]:
         """Suggest appropriate web visualizations based on data characteristics."""
