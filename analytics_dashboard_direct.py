@@ -209,7 +209,7 @@ def generate_insights_direct():
         st.error(f"Error generating insights: {str(e)}")
         return []
 
-def create_visualization_direct(chart_type):
+def create_visualization_direct(chart_type, x_column=None, y_column=None, color_column=None, title=None):
     """Create visualization directly using WebVisualizer."""
     try:
         current_dataset = get_current_dataset()
@@ -221,7 +221,11 @@ def create_visualization_direct(chart_type):
         # Create chart using WebVisualizer
         chart_result = st.session_state.web_visualizer.create_web_chart(
             data=df,
-            chart_type=chart_type
+            chart_type=chart_type,
+            x_column=x_column,
+            y_column=y_column,
+            color_column=color_column,
+            title=title
         )
         
         return chart_result
@@ -581,12 +585,88 @@ def render_detailed_analysis():
                 "pie",
                 "violin"
             ],
-            help="Select the type of chart to create"
+            help="Select the type of chart to create",
+            key="chart_type_selector"
         )
+        
+        # Get column lists by type
+        numeric_columns = list(df.select_dtypes(include=['number']).columns)
+        categorical_columns = list(df.select_dtypes(include=['object', 'category']).columns)
+        all_columns = list(df.columns)
+        
+        # Column selection based on chart type
+        x_column = None
+        y_column = None
+        color_column = None
+        
+        # Configure column selection based on chart type
+        if chart_type == "histogram":
+            x_column = st.selectbox("Select column for histogram:", all_columns, 
+                                   index=0 if numeric_columns else 0,
+                                   help="Numeric columns work best for histograms")
+            
+            color_column = st.selectbox("Color by (optional):", 
+                                      ["None"] + categorical_columns,
+                                      help="Split histogram by category")
+            if color_column == "None":
+                color_column = None
+                
+        elif chart_type == "pie":
+            x_column = st.selectbox("Select category for pie chart:", 
+                                   categorical_columns if categorical_columns else all_columns,
+                                   help="Categories to show in the pie chart")
+            
+            if numeric_columns:
+                y_column_options = ["Count"] + numeric_columns
+                y_column_selection = st.selectbox("Values to use:", y_column_options, 
+                                                help="'Count' uses frequency, or select a numeric column for values")
+                if y_column_selection != "Count":
+                    y_column = y_column_selection
+            
+        elif chart_type == "heatmap":
+            st.info("Heatmap will automatically use correlation matrix of numeric columns")
+            
+        else:
+            # For scatter, line, bar, violin plots
+            x_options = categorical_columns if chart_type == "bar" and categorical_columns else all_columns
+            x_default_idx = 0
+            
+            x_column = st.selectbox("X-axis:", x_options, index=x_default_idx,
+                                  help="Select column for X-axis")
+            
+            # For Y-axis, prefer numeric columns
+            y_options = [col for col in all_columns if col != x_column]
+            y_default_idx = 0
+            for i, col in enumerate(y_options):
+                if col in numeric_columns:
+                    y_default_idx = i
+                    break
+                    
+            y_column = st.selectbox("Y-axis:", y_options, index=min(y_default_idx, len(y_options)-1) if y_options else 0,
+                                  help="Select column for Y-axis")
+            
+            # Optional color column
+            if categorical_columns:
+                color_options = ["None"] + [col for col in categorical_columns if col not in [x_column, y_column]]
+                if color_options and len(color_options) > 1:
+                    color_selection = st.selectbox("Color by (optional):", color_options,
+                                                 help="Split data points by category")
+                    if color_selection != "None":
+                        color_column = color_selection
+        
+        # Chart title
+        custom_title = st.text_input("Chart title (optional):", 
+                                    placeholder=f"Enter a title for your {chart_type} chart")
         
         if st.button("📊 Create Visualization", type="primary"):
             with st.spinner(f"Creating {chart_type} chart..."):
-                chart_result = create_visualization_direct(chart_type)
+                chart_result = create_visualization_direct(
+                    chart_type=chart_type,
+                    x_column=x_column,
+                    y_column=y_column,
+                    color_column=color_column,
+                    title=custom_title if custom_title else None
+                )
                 
                 if chart_result and chart_result.get("success"):
                     st.session_state.analysis_results[f"chart_{chart_type}"] = chart_result
